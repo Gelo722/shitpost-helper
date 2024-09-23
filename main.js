@@ -5,16 +5,51 @@ const memeImage = document.querySelector(".meme-generator img");
 const memeTitle = document.querySelector(".meme-generator .meme-title");
 const memeAuthor = document.querySelector(".meme-generator .meme-author");
 const memeCopy = document.querySelector(".meme-generator .copy-btn");
-const memeDownload = document.querySelector('.meme-generator .download-btn')
+const memeDownload = document.querySelector('.meme-generator .download-btn');
+
+const urlInput = document.querySelector(".meme-generator .change-url");
+const apiUrl = 'https://meme-api.com/gimme/';
+let subReddit = '';
+
+// add an event listener to the input field
+urlInput.addEventListener('input', () => {
+  const inputValue = urlInput.value.trim(); // get input value
+  if (inputValue.length > 0) {
+    subReddit = apiUrl + inputValue; // update subReddit with the new input value
+    console.log(`Resulting URL: ${subReddit}`);
+  } else {
+    console.error("Input value is empty");
+  }
+});
+
+
+// prevent sending the form
+document.addEventListener('DOMContentLoaded', () => {
+    const form = document.querySelector('form');
+    form.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+      }
+    });
+  });
 
 const updateDetails = (url, title, author) => {
     memeImage.setAttribute("src", url)
     memeTitle.innerHTML = title;
     memeAuthor.innerHTML = author;
 }
+
+// Get pic
 const generateMeme = () => {
     // Change subreddit
-    fetch("https://meme-api.com/gimme/memes").then((Response) => Response.json()).then(data => {
+    // fetch("https://meme-api.com/gimme/memes").then((Response) => Response.json()).then(data => {
+    //     updateDetails(data.url, data.title, data.author)
+    // });
+
+
+
+
+    fetch(subReddit).then((Response) => Response.json()).then(data => {
         updateDetails(data.url, data.title, data.author)
     });
 
@@ -41,6 +76,7 @@ function writeToCanvas(src) {
     })
 }
 
+// Copy Image
 async function copyToClipboard(src) {
 
     const blob = await writeToCanvas(src);
@@ -58,6 +94,7 @@ async function copyToClipboard(src) {
 
 };
 
+// Download image
 async function downloadImage(src) {
     const image = await fetch(src)
     const imageBlog = await image.blob()
@@ -77,10 +114,11 @@ async function downloadImage(src) {
 generateMemeBtn.addEventListener("click", generateMeme);
 
 
-// Copy Image
+
 memeCopy.addEventListener('click', () => {
     copyToClipboard(memeImage.src);
 });
+
 
 memeDownload.addEventListener("click", () => {downloadImage(memeImage.src);
 
